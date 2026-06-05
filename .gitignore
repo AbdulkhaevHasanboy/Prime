@@ -1,0 +1,65 @@
+# ── Node / Vue / Vite (front/) ─────────────────────────────────────────
+node_modules/
+dist/
+.output/
+.nuxt/
+.cache/
+*.local
+front/memory/
+
+# Vite cache
+.vite/
+
+# Build artifacts
+front/dist/
+front/.vite/
+
+# SSL certs (never commit)
+*.pem
+front/cert.pem
+front/key.pem
+front/certs/
+
+# ── Python (back/ & Beta/) ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Beta dist folder (large compiled/generated files)
+Beta/dist/
+
+# ── Environment & Secrets ──────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.secret
+
+# ── IDE & OS ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ───────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

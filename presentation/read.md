@@ -17,3 +17,4 @@
 |---|---|
 | **Gemini 3.1 Flash Live** (Preview) | Real-time / live streaming AI interactions |
 | **Gemini 3.5 flash** | Advanced reasoning, content generation |
+

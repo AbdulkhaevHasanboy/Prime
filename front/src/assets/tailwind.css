@@ -1,0 +1,547 @@
+/* Tailwind entry — utilities power the public marketing pages (LandingPage.vue).
+   Preflight (Tailwind's global reset) is disabled in tailwind.config.js so it
+   can never touch the app's hand-written styles; only opt-in classes are emitted. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Global: disable text selection & pinch-zoom ──────────────────────── */
+*,
+::before,
+::after {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Allow scrolling but block pinch-zoom gesture at the CSS level */
+  touch-action: pan-x pan-y;
+}
+
+/* Re-enable selection inside inputs, textareas and contenteditable so users
+   can still interact with form fields normally. */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  touch-action: auto;
+}
+
+/*
+  Scoped "mini-preflight".
+
+  Because global preflight is off, Tailwind utilities that depend on it
+  (border-* need `border-style: solid`; transform/shadow/filter/backdrop
+  utilities need the `--tw-*` variable defaults) would silently no-op. The
+  landing page is built entirely from utilities, so we recreate just enough of
+  preflight — confined to `.landing-page` — to give that subtree a correct
+  Tailwind baseline. The rest of the app is unaffected.
+*/
+@layer base {
+  /*
+    App-wide Tailwind variable defaults.
+
+    Preflight is off, so Tailwind utilities that depend on its CSS variables
+    (transform/translate/scale, gradients, filter, backdrop-filter, ring) would
+    silently no-op outside the landing page. main.css already handles box-sizing
+    + margin/padding resets globally, so here we ONLY seed the `--tw-*`
+    variables — purely additive, it touches nothing visual on its own. Borders
+    stay opt-in: pair `border` with `border-solid` where you want one (we never
+    globally reset border-width/style, so unconverted markup is untouched).
+  */
+  *,
+  ::before,
+  ::after {
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-rotate: 0;
+    --tw-skew-x: 0;
+    --tw-skew-y: 0;
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+    --tw-gradient-from-position: ;
+    --tw-gradient-via-position: ;
+    --tw-gradient-to-position: ;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: rgb(59 130 246 / 0.5);
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    --tw-blur: ;
+    --tw-brightness: ;
+    --tw-contrast: ;
+    --tw-grayscale: ;
+    --tw-hue-rotate: ;
+    --tw-invert: ;
+    --tw-saturate: ;
+    --tw-sepia: ;
+    --tw-drop-shadow: ;
+    --tw-backdrop-blur: ;
+    --tw-backdrop-brightness: ;
+    --tw-backdrop-contrast: ;
+    --tw-backdrop-grayscale: ;
+    --tw-backdrop-hue-rotate: ;
+    --tw-backdrop-invert: ;
+    --tw-backdrop-opacity: ;
+    --tw-backdrop-saturate: ;
+    --tw-backdrop-sepia: ;
+  }
+
+  .landing-page,
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-rotate: 0;
+    --tw-skew-x: 0;
+    --tw-skew-y: 0;
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+    --tw-gradient-from-position: ;
+    --tw-gradient-via-position: ;
+    --tw-gradient-to-position: ;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: rgb(59 130 246 / 0.5);
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    --tw-blur: ;
+    --tw-brightness: ;
+    --tw-contrast: ;
+    --tw-grayscale: ;
+    --tw-hue-rotate: ;
+    --tw-invert: ;
+    --tw-saturate: ;
+    --tw-sepia: ;
+    --tw-drop-shadow: ;
+    --tw-backdrop-blur: ;
+    --tw-backdrop-brightness: ;
+    --tw-backdrop-contrast: ;
+    --tw-backdrop-grayscale: ;
+    --tw-backdrop-hue-rotate: ;
+    --tw-backdrop-invert: ;
+    --tw-backdrop-opacity: ;
+    --tw-backdrop-saturate: ;
+    --tw-backdrop-sepia: ;
+  }
+
+  /* :where() keeps these resets at single-class specificity so margin/padding
+     utilities (mb-6, mb-8, mb-10, …) still apply to headings, paragraphs and
+     lists — :is() would inherit element specificity and silently win, collapsing
+     all the vertical spacing. */
+  .landing-page :where(h1, h2, h3, h4, h5, h6, p, figure) {
+    margin: 0;
+  }
+  .landing-page :where(ul, ol) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* Neutralize the UA button chrome, but keep this at single-class specificity
+     (via :where) so background/color utilities like `bg-gradient-to-r`,
+     `bg-primary` and `text-on-primary` still win — otherwise filled buttons
+     render transparent (invisible white-on-white). */
+  .landing-page :where(button) {
+    font-family: inherit;
+    cursor: pointer;
+    background: none;
+  }
+  .landing-page table {
+    border-collapse: collapse;
+  }
+  /* Fixed 80px nav → keep scrolled-to sections clear of it. */
+  .landing-page :is(section[id], header[id]) {
+    scroll-margin-top: 88px;
+  }
+}
+
+/*
+  Marketing design-system classes, composed from Tailwind utilities via @apply
+  so the components themselves stay markup-only. Opt-in by class name, so they
+  never leak into the rest of the app.
+*/
+@layer components {
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .glass-panel {
+    @apply border bg-white/40 backdrop-blur-[20px];
+    border-top-color: rgba(255, 255, 255, 0.6);
+    border-left-color: rgba(255, 255, 255, 0.6);
+    border-bottom-color: rgba(0, 0, 0, 0.05);
+    border-right-color: rgba(0, 0, 0, 0.05);
+  }
+  .glass-card-hover {
+    @apply transition-all duration-300;
+  }
+  .glass-card-hover:hover {
+    @apply -translate-y-1 bg-white/60 shadow-[0_0_15px_rgba(6,182,212,0.3)] backdrop-blur-[24px];
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent;
+  }
+
+  .bg-mesh {
+    @apply bg-background;
+    background-image:
+      radial-gradient(at 40% 20%, hsla(245, 100%, 74%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(245, 100%, 74%, 0.1) 0px, transparent 50%);
+  }
+
+  /* Decorative gradient panel that stands in for the old external illustrations. */
+  .illustration {
+    @apply border border-primary/10;
+    background:
+      radial-gradient(at 30% 20%, rgba(79, 70, 229, 0.18), transparent 55%),
+      radial-gradient(at 80% 80%, rgba(6, 182, 212, 0.18), transparent 55%),
+      #eef0fb;
+  }
+
+  /* Logo mark (replaces the old hosted PNG). */
+  .brand-mark {
+    @apply inline-flex h-14 w-14 items-center justify-center;
+  }
+  .brand-mark--sm {
+    @apply h-10 w-10;
+  }
+}
+
+/*
+  ── Marketing motion layer ───────────────────────────────────────────────
+  Scroll-reveal baseline + hero ambience. All scoped under `.landing-page`
+  so nothing leaks into the app. The `v-reveal` directive (LandingPage.vue)
+  toggles `.reveal-visible`; everything else is autonomous CSS animation.
+*/
+
+/* Scroll-triggered entrance: hidden until `.reveal-visible` is added. */
+.landing-page .reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.landing-page .reveal.reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Opacity-only reveal — preserves the element's own transform (e.g. the
+   raised premium pricing card). Toggled by `v-reveal.fade`. */
+.landing-page .reveal-fade {
+  opacity: 0;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity;
+}
+.landing-page .reveal-fade.reveal-visible {
+  opacity: 1;
+}
+
+/* Continuously panning gradient — give a gradient-text element this class. */
+.landing-page .gradient-text-animated {
+  background-size: 220% auto;
+  animation: lp-gradient-pan 6s ease-in-out infinite;
+}
+
+/* Floating ambient orbs behind the hero. */
+.landing-page .orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  pointer-events: none;
+  will-change: transform;
+}
+.landing-page .orb-1 {
+  width: 420px;
+  height: 420px;
+  top: -80px;
+  left: -60px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.5), transparent 70%);
+  animation: lp-float-1 16s ease-in-out infinite;
+}
+.landing-page .orb-2 {
+  width: 480px;
+  height: 480px;
+  top: 10%;
+  right: -120px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.45), transparent 70%);
+  animation: lp-float-2 20s ease-in-out infinite;
+}
+.landing-page .orb-3 {
+  width: 360px;
+  height: 360px;
+  bottom: -120px;
+  left: 35%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent 70%);
+  animation: lp-float-3 24s ease-in-out infinite;
+}
+
+/* Breathing glow — draws the eye to the popular pricing card. Animates
+   box-shadow only, so it never fights the card's own transform. */
+.landing-page .animate-glow {
+  animation: lp-glow 3.4s ease-in-out infinite;
+}
+
+/* Sheen swipe that crosses a button on hover. */
+.landing-page .sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.landing-page .sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.landing-page .sheen:hover::after {
+  transform: translateX(120%);
+}
+
+@keyframes lp-gradient-pan {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+@keyframes lp-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 40px) scale(1.12); }
+}
+@keyframes lp-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-60px, 30px) scale(1.08); }
+}
+@keyframes lp-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -50px) scale(1.15); }
+}
+@keyframes lp-glow {
+  0%, 100% { box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.35); }
+  50% { box-shadow: 0 18px 60px -8px rgba(79, 70, 229, 0.6); }
+}
+
+/* ── Extended scroll-reveal variants ──────────────────────────────────
+   Same IntersectionObserver toggle (.reveal-visible) as the base reveal,
+   driven by `v-reveal.left/.right/.zoom/.blur`. */
+.landing-page .reveal-left,
+.landing-page .reveal-right,
+.landing-page .reveal-zoom,
+.landing-page .reveal-blur {
+  opacity: 0;
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.8s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+.landing-page .reveal-left { transform: translateX(-56px); }
+.landing-page .reveal-right { transform: translateX(56px); }
+.landing-page .reveal-zoom {
+  transform: scale(0.85);
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.landing-page .reveal-blur { transform: translateY(28px); filter: blur(14px); }
+.landing-page .reveal-left.reveal-visible,
+.landing-page .reveal-right.reveal-visible,
+.landing-page .reveal-zoom.reveal-visible,
+.landing-page .reveal-blur.reveal-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Reading-progress bar pinned to the very top; width driven by --scroll (0–1). */
+.landing-page .scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  transform: scaleX(var(--scroll, 0));
+  transform-origin: left center;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4, #a855f7);
+  box-shadow: 0 0 12px rgba(79, 70, 229, 0.5);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* 3D tilt — the v-tilt directive writes the live transform; this just gives a
+   smooth spring-back when the pointer leaves. */
+.landing-page .tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Bouncing scroll cue under the hero CTAs. */
+.landing-page .scroll-cue {
+  animation: lp-bob 1.8s ease-in-out infinite;
+}
+
+/* Animated underline that wipes in on hover (nav links). */
+.landing-page .nav-link {
+  position: relative;
+}
+.landing-page .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s ease;
+}
+.landing-page .nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Gentle continuous float — stagger with --float-delay. */
+.landing-page .float-soft {
+  animation: lp-float-soft 4s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0ms);
+}
+
+/* Animated conic-ish gradient border (premium pricing card). */
+.landing-page .gradient-border {
+  position: relative;
+}
+.landing-page .gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(130deg, #4f46e5, #06b6d4, #a855f7, #4f46e5);
+  background-size: 300% 300%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: lp-border-pan 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Expanding ring around a status dot. */
+.landing-page .pulse-ring {
+  position: relative;
+}
+.landing-page .pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: lp-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Rising particles in the hero backdrop. */
+.landing-page .particle {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.55), rgba(6, 182, 212, 0.25));
+  animation: lp-rise linear infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+@keyframes lp-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(10px); opacity: 1; }
+}
+@keyframes lp-float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes lp-border-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+@keyframes lp-ping {
+  0% { transform: scale(1); opacity: 0.6; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes lp-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.7; }
+  100% { transform: translateY(-160px) scale(0.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .reveal,
+  .landing-page .reveal-left,
+  .landing-page .reveal-right,
+  .landing-page .reveal-zoom,
+  .landing-page .reveal-blur {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  .landing-page .reveal-fade {
+    opacity: 1;
+    transition: none;
+  }
+  .landing-page .gradient-text-animated,
+  .landing-page .orb,
+  .landing-page .animate-glow,
+  .landing-page .scroll-cue,
+  .landing-page .float-soft,
+  .landing-page .particle,
+  .landing-page .gradient-border::before,
+  .landing-page .pulse-ring::after {
+    animation: none;
+  }
+  .landing-page .pulse-ring::after,
+  .landing-page .particle {
+    display: none;
+  }
+  .landing-page .tilt {
+    transform: none !important;
+    transition: none;
+  }
+  .landing-page .sheen::after {
+    display: none;
+  }
+}

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kosmik Tezlik va Yillar Siri</title>
+  <style>
+    /* Dark Theme & Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #060814;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Container layout to fit exactly inside 1670px x 560px */
+    .app-container {
+      width: 100%;
+      max-width: 1670px;
+      height: 100%;
+      max-height: 560px;
+      display: flex;
+      flex-direction: row;
+      background: #090c20;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+    }
+
+    /* Left Column: Interactive Simulation (60% width) */
+    .simulation-pane {
+      width: 60%;
+      height: 100%;
+      position: relative;
+      background: radial-gradient(circle at center, #101435 0%, #050716 100%);
+      border-right: 1px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .simulation-overlay {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      backdrop-filter: blur(4px);
+    }
+    .simulation-overlay h2 {
+      font-size: 1.1rem;
+      color: #38bdf8;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .simulation-overlay p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* Right Column: Controls & Feedback (40% width) */
+    .controls-pane {
+      width: 40%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #0d122b;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* Instruction Panel at the top with prominent distinct background */
+    .instructions-box {
+      background: #1e1b4b;
+      border-left: 4px solid #818cf8;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .instructions-box h3 {
+      font-size: 0.95rem;
+      color: #a5b4fc;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .instructions-box ol {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    /* Interactive Control Sections */
+    .panel-section {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .panel-section-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Custom Slider */
+    .slider-group {
+      margin-bottom: 12px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      color: #94a3b8;
+    }
+    .slider-header span.highlight {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    .custom-slider {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+      accent-color: #38bdf8;
+    }
+
+    /* Prediction Grid */
+    .prediction-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .predict-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .predict-btn:hover {
+      border-color: #38bdf8;
+      background: #111a2e;
+    }
+    .predict-btn.selected {
+      background: #0284c7;
+      color: #fff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Submit & Action Buttons */
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-primary {
+      flex: 2;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .btn-secondary {
+      flex: 1;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      padding: 10px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    /* Simulation Speed Control */
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .speed-control input {
+      flex: 1;
+      accent-color: #6366f1;
+    }
+
+    /* Running Trial History Table */
+    .history-container {
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      background: #090d22;
+    }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      text-align: left;
+    }
+    .history-table th {
+      background: #111827;
+      color: #94a3b8;
+      padding: 6px 8px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .history-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #1e293b;
+      color: #e2e8f0;
+    }
+    .history-table tr:hover {
+      background: rgba(56, 189, 248, 0.05);
+    }
+    .row-earth {
+      color: #38bdf8 !important;
+      font-weight: bold;
+    }
+
+    /* Explain Panel (Plain words & Hook integration) */
+    .explain-panel {
+      background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+    .explain-panel h4 {
+      color: #38bdf8;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .recap-badge {
+      display: inline-block;
+      background: #065f46;
+      color: #34d399;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-top: 8px;
+      font-size: 0.75rem;
+    }
+
+    /* Custom Scrollbar */
+    .controls-pane::-webkit-scrollbar, .history-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .controls-pane::-webkit-scrollbar-track, .history-container::-webkit-scrollbar-track {
+      background: #090c20;
+    }
+    .controls-pane::-webkit-scrollbar-thumb, .history-container::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    .controls-pane::-webkit-scrollbar-thumb:hover, .history-container::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Notifications/Alerts Inside Controls */
+    .feedback-banner {
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      margin-bottom: 10px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .feedback-success {
+      background: rgba(6, 95, 70, 0.4);
+      border: 1px solid #059669;
+      color: #34d399;
+    }
+    .feedback-info {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid #475569;
+      color: #cbd5e1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- LEFT SIDE: Interactive Solar System Visualizer -->
+    <div class="simulation-pane">
+      <div class="simulation-overlay">
+        <h2>Quyosh Tizimi Simulyatori</h2>
+        <p>Haqiqiy Kepler va Nyuton qonunlari asosida</p>
+      </div>
+      <canvas id="orbitCanvas"></canvas>
+    </div>
+
+    <!-- RIGHT SIDE: Game Controls, Predictions, Data, and Explanation -->
+    <div class="controls-pane">
+
+      <!-- Top Prominent Instructions -->
+      <div class="instructions-box">
+        <h3>🚀 Qanday o'ynash kerak:</h3>
+        <ol>
+          <li>Yangi sayyoraning orbitadagi masofasini sozlang (Slayder orqali).</li>
+          <li>Uning orbital tezligi qanday o'zgarishini taxmin qiling.</li>
+          <li>"Orbitaga uchirish!" tugmasini bosing va harakatni kuzating!</li>
+          <li>Jadvaldagi yillar davomiyligini solishtirib, qonuniyatni oching.</li>
+        </ol>
+      </div>
+
+      <!-- Control Panel -->
+      <div class="panel-section">
+        <div class="panel-section-title">Yangi Sayyora Parametrlari</div>
+
+        <!-- Slider: Distance -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <span>Orbita Masofasi (a):</span>
+            <span><span id="dist-val" class="highlight">2.00</span> AU</span>
+          </div>
+          <input type="range" id="dist-slider" class="custom-slider" min="0.4" max="6.0" step="0.1" value="2.0">
+          <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; margin-top: 3px;">
+            <span>Merkuriyga yaqin (0.4 AU)</span>
+            <span>Yupiter yaqinida (6.0 AU)</span>
+          </div>
+        </div>
+
+        <!-- Predict Section -->
+        <div class="slider-group" style="margin-top: 8px;">
+          <div class="slider-header">
+            <span>Sizning taxminingiz: Uzoqlashganda tezlik nima bo'ladi?</span>
+          </div>
+          <div class="prediction-grid">
+            <button class="predict-btn" data-predict="faster">Tezlashadi ⚡</button>
+            <button class="predict-btn" data-predict="same">O'zgarmaydi ⏸️</button>
+            <button class="predict-btn" data-predict="slower">Sekinlashadi 🐌</button>
+          </div>
+        </div>
+
+        <!-- Submit Panel & Actions -->
+        <div class="action-row">
+          <button id="launch-btn" class="btn-primary">🪐 Orbitaga uchirish!</button>
+          <button id="clear-btn" class="btn-secondary">Tozalash</button>
+        </div>
+
+        <!-- Speed control slider -->
+        <div class="speed-control">
+          <span>Vaqt tezligi:</span>
+          <input type="range" id="speed-slider" min="0.1" max="3" step="0.1" value="1">
+          <span id="speed-lbl">1.0x</span>
+        </div>
+      </div>
+
+      <!-- Feedback Banner -->
+      <div id="feedback" class="feedback-banner"></div>
+
+      <!-- Trial History / The Pattern Indicator -->
+      <div class="panel-section">
+        <div class="panel-section-title">Orbital Natijalar Jadvali (Solistiruv)</div>
+        <div class="history-container">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Nomi</th>
+                <th>Masofa (AU)</th>
+                <th>Tezlik (km/s)</th>
+                <th>Yil uzunligi (Yer yili)</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr class="row-earth">
+                <td>🌍 Yer (Mezon)</td>
+                <td>1.0</td>
+                <td>29.8</td>
+                <td>1.0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Plain Words Explanation (The Aha moment) -->
+      <div class="explain-panel">
+        <h4>💡 Nega bunday? (Kashfiyot siri)</h4>
+        <p>
+          Masofa ortishi bilan Quyoshning <strong>tortishish kuchi</strong> kvadratik ravishda zaiflashadi.
+          Agar uzoqdagi sayyoralar Yer kabi tez aylanganda, ular koinot qa'riga uchib ketgan bo'lardi! Orbitada barqaror qolish uchun ular <strong>sekinroq</strong> harakat qilishi shart.
+        </p>
+        <p style="margin-top: 6px;">
+          Natijada ikkita omil birlashadi: 1) Aylanib o'tish yo'li ancha uzunroq, 2) Harakat tezligi ancha sekinroq. Shuning uchun uzoq sayyoralarda bitta yil o'ta uzoq davom etadi!
+        </p>
+        <div class="recap-badge">
+          🎯 Xulosa: Masofa 4 marta ortsa, tezlik 2 marta kamayadi, yil esa 8 marta uzayadi!
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // --- CANVAS CONFIG & RESIZING ---
+    const canvas = document.getElementById('orbitCanvas');
+    const ctx = canvas.getContext('2d');
+    const simPane = canvas.parentElement;
+
+    let width = 0;
+    let height = 0;
+
+    function resizeCanvas() {
+      width = simPane.clientWidth;
+      height = simPane.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    resizeObserver.observe(simPane);
+    window.addEventListener('load', resizeCanvas);
+
+    // --- PHYSICS & STATE ---
+    // Scale factor: 1 AU = 60 pixels
+    const SCALE = 50;
+    let simSpeedMultiplier = 1.0;
+
+    // Default system state
+    // G*M constant chosen to align Earth (a=1) with 1 Year period
+    const GM = 0.001; // Orbital speed tuning constant
+
+    class Planet {
+      constructor(name, distance, color, isCustom = false) {
+        this.name = name;
+        this.distance = distance; // in AU
+        this.color = color;
+        this.isCustom = isCustom;
+
+        // Physics logic: v = sqrt(GM / r)
+        // Let's normalize so Earth (a=1) has orbital speed of 1 radian/year roughly, or custom visible orbital velocity
+        this.angularSpeed = 0.015 / Math.pow(this.distance, 1.5);
+        this.angle = Math.random() * Math.PI * 2;
+
+        // Real-world representation
+        this.realSpeed = (29.8 / Math.sqrt(this.distance)).toFixed(1); // km/s
+        this.realPeriod = Math.pow(this.distance, 1.5).toFixed(2); // Earth years
+
+        // Visual variables
+        this.size = isCustom ? 7 : 5;
+        this.trail = [];
+        this.maxTrailLength = 80;
+      }
+
+      update() {
+        // Increment angle proportional to angular velocity and global speed controller
+        this.angle += this.angularSpeed * simSpeedMultiplier;
+        if (this.angle > Math.PI * 2) this.angle -= Math.PI * 2;
+
+        // Save path trail
+        const x = width / 2 + Math.cos(this.angle) * this.distance * SCALE;
+        const y = height / 2 + Math.sin(this.angle) * this.distance * SCALE;
+        this.trail.push({ x, y });
+        if (this.trail.length > this.maxTrailLength) {
+          this.trail.shift();
+        }
+      }
+
+      draw() {
+        const cx = width / 2;
+        const cy = height / 2;
+        const radius = this.distance * SCALE;
+
+        // 1. Draw Orbit Ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = this.isCustom ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = this.isCustom ? 1.5 : 1;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 2. Draw Speed vector & Motion Trail
+        if (this.trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(this.trail[0].x, this.trail[0].y);
+          for (let i = 1; i < this.trail.length; i++) {
+            ctx.lineTo(this.trail[i].x, this.trail[i].y);
+          }
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.3;
+          ctx.stroke();
+          ctx.globalAlpha = 1.0;
+        }
+
+        // 3. Draw Planet
+        const px = cx + Math.cos(this.angle) * radius;
+        const py = cy + Math.sin(this.angle) * radius;
+
+        ctx.beginPath();
+        ctx.arc(px, py, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0; // Reset
+
+        // 4. Label text
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '9px sans-serif';
+        ctx.fillText(this.name, px + 10, py + 3);
+      }
+    }
+
+    // Initialize Planet Array
+    let planets = [];
+
+    function resetSystem() {
+      planets = [
+        new Planet("Yer 🌍", 1.0, "#00e5ff"), // Mezon Yer
+      ];
+    }
+    resetSystem();
+
+    // Custom Planet Colors palette
+    const colors = ["#d500f9", "#00e676", "#ff9100", "#ff4081", "#a855f7", "#22c55e", "#ec4899"];
+    let customPlanetCounter = 1;
+
+    // --- GAME INTERACTIVE LOOP ---
+    function animate() {
+      // Background clear
+      ctx.fillStyle = '#050716';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw background stars decoration
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      for (let i = 0; i < 20; i++) {
+        // Pseudo-random static star distribution
+        const x = (Math.sin(i * 99) * 0.5 + 0.5) * width;
+        const y = (Math.cos(i * 33) * 0.5 + 0.5) * height;
+        ctx.fillRect(x, y, 1.5, 1.5);
+      }
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // Draw glowing Sun
+      ctx.beginPath();
+      ctx.arc(cx, cy, 16, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd700';
+      ctx.shadowColor = '#eab308';
+      ctx.shadowBlur = 24;
+      ctx.fill();
+      ctx.shadowBlur = 0; // Reset shadow
+
+      // Draw inner glow ring for aesthetic excellence
+      ctx.beginPath();
+      ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(234, 179, 8, 0.15)';
+      ctx.fill();
+
+      // Update & Draw Planets
+      planets.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- DOM CONTROLS & LOGIC ---
+    const distSlider = document.getElementById('dist-slider');
+    const distVal = document.getElementById('dist-val');
+    const speedSlider = document.getElementById('speed-slider');
+    const speedLbl = document.getElementById('speed-lbl');
+    const launchBtn = document.getElementById('launch-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const historyBody = document.getElementById('history-body');
+    const feedbackBanner = document.getElementById('feedback');
+    const predictBtns = document.querySelectorAll('.predict-btn');
+
+    let selectedPrediction = null;
+
+    // Distance Slider input listener
+    distSlider.addEventListener('input', (e) => {
+      distVal.innerText = parseFloat(e.target.value).toFixed(2);
+    });
+
+    // Time speed modifier
+    speedSlider.addEventListener('input', (e) => {
+      simSpeedMultiplier = parseFloat(e.target.value);
+      speedLbl.innerText = simSpeedMultiplier.toFixed(1) + "x";
+    });
+
+    // Prediction buttons selection
+    predictBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        predictBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedPrediction = btn.getAttribute('data-predict');
+      });
+    });
+
+    // Launch action
+    launchBtn.addEventListener('click', () => {
+      const distance = parseFloat(distSlider.value);
+
+      if (!selectedPrediction) {
+        showFeedback("Iltimos, avval tezlik qanday o'zgarishi haqida taxmin qiling!", "info");
+        return;
+      }
+
+      // Physics logic to decide correctness of prediction
+      // At distance > 1.0 (Earth's distance), speed must be slower than 29.8 km/s.
+      // At distance < 1.0, speed must be faster.
+      let correctPredict = "";
+      if (distance > 1.01) {
+        correctPredict = "slower";
+      } else if (distance < 0.99) {
+        correctPredict = "faster";
+      } else {
+        correctPredict = "same";
+      }
+
+      const isCorrect = (selectedPrediction === correctPredict);
+
+      // Select visual planet details
+      const color = colors[customPlanetCounter % colors.length];
+      const planetName = `Sayyora-${customPlanetCounter} 🪐`;
+      customPlanetCounter++;
+
+      const newPlanet = new Planet(planetName, distance, color, true);
+      planets.push(newPlanet);
+
+      // Append to running history table
+      const newRow = document.createElement('tr');
+      newRow.style.color = color;
+      newRow.innerHTML = `
+        <td>${planetName}</td>
+        <td>${distance.toFixed(1)}</td>
+        <td>${newPlanet.realSpeed}</td>
+        <td>${newPlanet.realPeriod}</td>
+      `;
+      historyBody.appendChild(newRow);
+
+      // Trigger user-oriented gamification response feedback
+      if (isCorrect) {
+        showFeedback(`🎯 To'g'ri taxmin! ${planetName} uzoqroq/yaqinroq joyda muvozanat uchun mos tezlikda kashf etildi.`, "success");
+      } else {
+        const speedWord = correctPredict === "slower" ? "sekinroq" : "tezroq";
+        showFeedback(`👀 Qiziqarli tajriba! Masofa o'zgargani uchun ${planetName} barqaror orbitada faqat ${speedWord} aylana oladi!`, "info");
+      }
+    });
+
+    // Reset All action
+    clearBtn.addEventListener('click', () => {
+      resetSystem();
+      customPlanetCounter = 1;
+
+      // Clear dynamic rows, retain Earth standard reference
+      historyBody.innerHTML = `
+        <tr class="row-earth">
+          <td>🌍 Yer (Mezon)</td>
+          <td>1.0</td>
+          <td>29.8</td>
+          <td>1.0</td>
+        </tr>
+      `;
+      predictBtns.forEach(b => b.classList.remove('selected'));
+      selectedPrediction = null;
+      feedbackBanner.style.display = "none";
+    });
+
+    // Helper: Show Feedback dialogs
+    function showFeedback(text, type) {
+      feedbackBanner.innerText = text;
+      feedbackBanner.className = "feedback-banner"; // reset class
+      if (type === "success") {
+        feedbackBanner.classList.add("feedback-success");
+      } else {
+        feedbackBanner.classList.add("feedback-info");
+      }
+      feedbackBanner.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>

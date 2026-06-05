@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/image.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riko | Quantum (Python)</title>
+
+    <!--
+      WebSocket URL shim: the @google/genai SDK can emit a double-slash
+      (".../v1alpha//ws/...") host path. Fix it with a proper native WebSocket
+      subclass so `new WebSocket(url)` keeps correct constructor semantics.
+      (Doing this in Python via a proxy breaks `new` → "Illegal invocation".)
+    -->
+    <script>
+      (function () {
+        const OrigWS = window.WebSocket
+        class PatchedWebSocket extends OrigWS {
+          constructor(url, protocols) {
+            if (typeof url === 'string' && url.includes('generativelanguage.googleapis.com//ws/')) {
+              url = url.replace('generativelanguage.googleapis.com//ws/', 'generativelanguage.googleapis.com/ws/')
+              console.log('🔧 Patched Double-Slash WebSocket URL:', url)
+            }
+            if (protocols === undefined) super(url)
+            else super(url, protocols)
+          }
+        }
+        window.WebSocket = PatchedWebSocket
+        window.__websocket_patched = true
+      })()
+    </script>
+
+    <!-- PyScript runtime (Python in the browser via WebAssembly / Pyodide) served locally -->
+    <link rel="stylesheet" href="/libs/pyscript.css" />
+    <script type="module" src="/libs/pyscript.js"></script>
+
+    <style>
+      html, body { margin: 0; height: 100%; background: #111827; overflow: hidden; font-family: system-ui, sans-serif; }
+      #app-canvas { display: block; width: 100vw; height: 100vh; }
+
+      /* Boot / loading overlay (replaces SciFiLoader.vue for now) */
+      #boot {
+        position: fixed; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 16px; z-index: 50;
+        background: radial-gradient(circle at 50% 40%, #1e293b, #0b1120);
+        color: #c7d2fe; transition: opacity .6s ease;
+      }
+      #boot.hidden { opacity: 0; pointer-events: none; }
+      .ring {
+        width: 64px; height: 64px; border-radius: 50%;
+        border: 4px solid rgba(99,102,241,.25); border-top-color: #6366f1;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      #boot .label { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+      #boot .sub { font-size: 12px; opacity: .55; max-width: 320px; text-align: center; }
+
+      /* tiny FPS / status HUD */
+      #hud {
+        position: fixed; top: 10px; left: 12px; z-index: 40;
+        font-size: 12px; color: #94a3b8; background: rgba(15,23,42,.55);
+        padding: 6px 10px; border-radius: 8px; backdrop-filter: blur(6px);
+        font-variant-numeric: tabular-nums; pointer-events: none;
+      }
+
+      /* PyScript may show its own loading splash; keep it subtle */
+      .py-overlay { background: rgba(11,17,32,.9) !important; }
+    </style>
+
+    <!-- Expose Three.js, three-vrm, and GoogleGenAI via a single pre-bundled local script -->
+    <script type="module" src="/libs/vendor.min.js"></script>
+
+  </head>
+
+  <body>
+    <div id="boot">
+      <div class="ring"></div>
+      <div class="label">Booting Python runtime</div>
+      <div class="sub">Loading Pyodide + Three.js — the avatar is rendered by Python in your browser.</div>
+    </div>
+    <div id="hud">starting…</div>
+    <canvas id="app-canvas"></canvas>
+
+    <!-- Application entry point — 100% Python -->
+    <script type="py" src="./main.py" config="./pyscript.toml"></script>
+  </body>
+</html>

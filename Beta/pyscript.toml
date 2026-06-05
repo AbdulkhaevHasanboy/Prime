@@ -1,0 +1,30 @@
+# PyScript configuration — Python-in-the-browser app for Quantum VRM.
+# Extra Python modules are mounted into the virtual filesystem so main.py can import them.
+name = "Quantum VRM (Python)"
+
+interpreter = "./libs/pyodide/pyodide.mjs"
+
+# Pyodide packages: numpy for fast PCM16<->Float32 audio conversion (lip-sync / playback).
+packages = [
+  "./libs/pyodide/numpy-1.26.4-cp312-cp312-pyodide_2024_0_wasm32.whl"
+]
+
+[files]
+"./managers/audio_manager.py" = "./managers/audio_manager.py"
+"./managers/vision_manager.py" = "./managers/vision_manager.py"
+"./managers/telegram_manager.py" = "./managers/telegram_manager.py"
+"./managers/speech_manager.py" = "./managers/speech_manager.py"
+"./managers/ai_client.py" = "./managers/ai_client.py"
+"./managers/utils.py" = "./managers/utils.py"
+"./managers/cache_manager.py" = "./managers/cache_manager.py"
+"./managers/orchestrator.py" = "./managers/orchestrator.py"
+"./managers/i18n.py" = "./managers/i18n.py"
+"./managers/device_fingerprint.py" = "./managers/device_fingerprint.py"
+"./ui/__init__.py" = "./ui/__init__.py"
+"./ui/app_ui.py" = "./ui/app_ui.py"
+"./managers/__init__.py" = "./managers/__init__.py"
+"./managers/jsutil.py" = "./managers/jsutil.py"
+"./managers/config_manager.py" = "./managers/config_manager.py"
+"./managers/scene_manager.py" = "./managers/scene_manager.py"
+"./managers/vrm_loader.py" = "./managers/vrm_loader.py"
+"./managers/animation_manager.py" = "./managers/animation_manager.py"

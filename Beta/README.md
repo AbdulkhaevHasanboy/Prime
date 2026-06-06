@@ -1,4 +1,4 @@
-# Quantum VRM — Python Edition 🐍🌌
+# 3d Mentor — Python Edition 🐍🌌
 
 A full rewrite of **`VRM_1`** (a Vue 3 + Three.js/WebGL + Gemini Live app) where **all
 application code is Python**, running **in the browser** via **PyScript / Pyodide**
